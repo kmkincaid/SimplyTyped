@@ -17,7 +17,8 @@ export type UnionContains<T extends string, U extends string> = (Record<T, True>
 
 export type IsZero<T extends number> = (Vector<False> & [True, False])[T];
 export type IsOne<T extends number> = (Vector<False> & [False, True, False])[T];
-export type Numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63];
+export type Numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63'];
+export type NumberToString<T extends number> = Numbers[T];
 export type Next<T extends number> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64][T];
 export type Prev<T extends number> = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62][T];
 export type Add<A extends number, B extends number> = { 1: A, 0: Add<Next<A>, Prev<B>> }[IsZero<B>];
@@ -45,6 +46,12 @@ export type Length<T extends Vector<any>> = T['length'];
 
 export type UnionizeTuple<T extends Vector<any>> = T[number];
 
+export type ArrayPrototypeKeys = DropString<Keys<[any]>, '0' | 'toString' | 'toLocaleString' | 'length'>;
+
+export type PartialTuple<N extends number, U> = Record<NumberToString<N>, U>;
+export type Append<T extends Vector<any>, U> = Overwrite<T & PartialTuple<Length<T>, U>, { length: Add<Length<T>, 1> }>;
+export type CleanTuple<T extends Vector<any>> = Omit<T & Omit<[T[0]], 'length'>, ArrayPrototypeKeys>;
+
 // Objects
 
 export type UnionizeProperties<T extends object> = T[Keys<T>];
@@ -65,7 +72,7 @@ export type SharedKeys<T extends object, U extends object> = Keys<T> & Keys<U>;
 export type AllKeys<T extends object, U extends object> = Keys<T> | Keys<U>;
 export type DiffKeys<T extends object, U extends object> = Diff<Keys<T>, Keys<U>>;
 
-export type Intersect<T extends object, U extends Partial<T>> = Omit<U, DiffKeys<U, T>>;
+export type Intersect<T extends object, U extends Partial<T>> = Pick<U, SharedKeys<U, T>>;
 
 export type Merge<T extends object, U extends object> = CombineObjects<Omit<T, SharedKeys<T, U>>, U>;
 export type Overwrite<T extends object, U extends object> = Merge<T, Intersect<T, U>>;
